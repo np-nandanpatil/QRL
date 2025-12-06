@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Generate branded QR codes in seconds. Download PNG or SVG, share instantly, and track scans with enterprise-grade reliability on Cloudflare.">
+  <meta name="keywords" content="qr code generator, free qr codes, qr code maker, qr svg, qr png">
+  <meta name="author" content="QR Flux">
+  <link rel="canonical" href="https://yourdomain.tech/">
+  <title>QR Flux | Enterprise QR Code Generator</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta property="og:title" content="QR Flux | Enterprise QR Code Generator">
+  <meta property="og:description" content="Effortless QR creation with instant downloads, sharing, and analytics. Optimized for speed on Cloudflare.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourdomain.tech/">
+  <meta property="og:image" content="https://yourdomain.tech/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QR Flux | Enterprise QR Code Generator">
+  <meta name="twitter:description" content="Create and share QR codes that scale. Powered by Cloudflare performance.">
+  <meta name="twitter:image" content="https://yourdomain.tech/og-image.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"QR Flux","url":"https://yourdomain.tech/","applicationCategory":"UtilityApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Instant QR generation","PNG and SVG downloads","Shareable links","Scan analytics"],"publisher":{"@type":"Organization","name":"QR Flux"}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar" aria-label="Generation history" data-visible="false" aria-hidden="true">
+      <div class="sidebar-header">
+        <div class="sidebar-title">History</div>
+        <button id="clearHistoryBtn" type="button" class="sidebar-clear">Clear</button>
+      </div>
+      <ul id="historyList" class="sidebar-list"></ul>
+      <div class="sidebar-footer">
+        <p>Signed in as guest</p>
+        <a href="mailto:hello@yourdomain.tech">Request access</a>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" data-visible="false" aria-hidden="true"></div>
+    <div class="main">
+      <header class="top-bar">
+        <div class="brand">QR Flux</div>
+        <nav class="nav">
+          <a href="#features">Features</a>
+          <a href="#use-cases">Use cases</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="actions-inline">
+          <button id="toggleSidebarBtn" type="button" class="icon-btn" aria-expanded="false" aria-controls="historyList">History</button>
+        </div>
+      </header>
+      <main>
+      <section class="hero" id="qr">
+        <div class="hero-copy">
+          <h1>Launch QR codes that load fast everywhere.</h1>
+          <p>Generate, brand, and share QR experiences served entirely from Cloudflare&apos;s edge so every scan converts.</p>
+          <ul class="hero-highlights">
+            <li>Edge-accelerated downloads</li>
+            <li>Shareable smart links</li>
+            <li>Scan analytics ready</li>
+          </ul>
+        </div>
+        <div class="generator">
+          <form id="qrForm" novalidate>
+            <label class="field">
+              <span>Destination URL</span>
+              <input type="url" id="urlInput" name="url" placeholder="https://" autocomplete="url" required>
+            </label>
+            <div class="field-grid">
+              <label class="field">
+                <span>Format</span>
+                <select id="formatSelect" name="format">
+                  <option value="png">PNG</option>
+                  <option value="svg">SVG</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Size</span>
+                <select id="sizeSelect" name="size">
+                  <option value="256">256 px</option>
+                  <option value="512" selected>512 px</option>
+                  <option value="1024">1024 px</option>
+                </select>
+              </label>
+            </div>
+            <label class="field">
+              <span>Foreground</span>
+              <input type="color" id="colorInput" name="color" value="#000000">
+            </label>
+            <label class="field">
+              <span>Background</span>
+              <input type="color" id="bgColorInput" name="bgColor" value="#ffffff">
+            </label>
+            <button type="submit" id="generateBtn">Generate QR</button>
+          </form>
+          <div class="preview">
+            <canvas id="qrCanvas" aria-label="QR preview"></canvas>
+            <div id="qrSvg" class="hidden"></div>
+          </div>
+          <div class="actions">
+            <a id="downloadBtn" class="btn disabled" role="button" aria-disabled="true">Download</a>
+            <button id="shareBtn" class="btn secondary" type="button">Share</button>
+            <button id="copyBtn" class="btn secondary" type="button">Copy link</button>
+          </div>
+          <p class="status" id="statusMessage" role="status"></p>
+        </div>
+      </section>
+      <section class="section" id="features">
+        <h2>Built for campaigns at scale</h2>
+        <div class="cards">
+          <article>
+            <h3>Smart history</h3>
+            <p>Cloudflare KV sync keeps your last scans synced across sessions for effortless reuse.</p>
+          </article>
+          <article>
+            <h3>Insight ready</h3>
+            <p>Pair with Cloudflare Analytics or Radar to watch engagements in real time.</p>
+          </article>
+          <article>
+            <h3>Trusted delivery</h3>
+            <p>Every asset ships from the edge with automatic HTTP/3 and Brotli for instant load.</p>
+          </article>
+        </div>
+      </section>
+      <section class="section" id="use-cases">
+        <h2>Use cases</h2>
+        <div class="cases">
+          <div>
+            <h3>Retail and OOH</h3>
+            <p>Rotate promotions without reprinting by swapping destinations via KV powered redirects.</p>
+          </div>
+          <div>
+            <h3>Events</h3>
+            <p>Deliver schedules and maps instantly with edge-cached landing pages.</p>
+          </div>
+          <div>
+            <h3>Restaurants</h3>
+            <p>Enable menu updates with zero downtime and controlled access via Turnstile.</p>
+          </div>
+        </div>
+      </section>
+      <section class="section faq" id="faq">
+        <h2>FAQ</h2>
+        <details>
+          <summary>Is QR Flux free?</summary>
+          <p>Yes. Core generation, downloads, and sharing remain free on the Cloudflare tier.</p>
+        </details>
+        <details>
+          <summary>Can I brand my QR codes?</summary>
+          <p>Custom colors and sizes ship today. Logo overlays land soon via Workers AI.</p>
+        </details>
+        <details>
+          <summary>How do I track scans?</summary>
+          <p>Connect Cloudflare Web Analytics or Radar for performance and engagement metrics.</p>
+        </details>
+      </section>
+    </main>
+      <footer class="footer">
+        <p>© <span id="year"></span> QR Flux. Built on Cloudflare.</p>
+        <div class="footer-links">
+          <a href="mailto:hello@yourdomain.tech">Contact</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <dialog id="shareDialog">
+    <form method="dialog">
+      <p id="shareDialogText"></p>
+      <button value="cancel">Close</button>
+    </form>
+  </dialog>
+</body>
+</html>

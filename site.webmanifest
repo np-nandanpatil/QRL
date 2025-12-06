@@ -1,0 +1,16 @@
+{
+  "name": "QR Flux",
+  "short_name": "QR Flux",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050816",
+  "theme_color": "#206eff",
+  "description": "Generate enterprise-ready QR codes instantly with Cloudflare edge performance.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
