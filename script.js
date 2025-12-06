@@ -1,3 +1,10 @@
+/**
+ * QRL - QR Code Generator
+ * Production-ready QR code generation with PNG/SVG support
+ * @author Nandan Patil
+ * @license MIT
+ */
+
 const form = document.getElementById("qrForm");
 const canvas = document.getElementById("qrCanvas");
 const svgContainer = document.getElementById("qrSvg");
@@ -13,11 +20,17 @@ const shareDialogText = document.getElementById("shareDialogText");
 const sidebar = document.querySelector(".sidebar");
 const sidebarOverlay = document.querySelector(".sidebar-overlay");
 const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+
+// Configuration constants
 const HISTORY_KEY = "qr-flux-history";
 const MAX_HISTORY = 10;
 const PREVIEW_SIZE = 320;
 let currentObjectUrl = null;
 
+/**
+ * Load QR code history from localStorage
+ * @returns {Array} Array of history items
+ */
 const loadHistory = () => {
   const stored = localStorage.getItem(HISTORY_KEY);
   if (!stored) return [];
@@ -25,15 +38,29 @@ const loadHistory = () => {
     const parsed = JSON.parse(stored);
     if (Array.isArray(parsed)) return parsed;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to parse history:", e);
   }
   return [];
 };
 
+/**
+ * Persist history to localStorage
+ * @param {Array} items - History items to save
+ */
 const persistHistory = items => {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY)));
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY)));
+  } catch (e) {
+    console.error("Failed to save history:", e);
+    setStatus("Unable to save to history. Storage may be full.", true);
+  }
 };
 
+/**
+ * Format ISO date to locale string
+ * @param {string} iso - ISO date string
+ * @returns {string} Formatted date string
+ */
 const formatDate = iso => {
   const date = new Date(iso);
   return date.toLocaleString(undefined, { hour: "numeric", minute: "2-digit", month: "short", day: "numeric" });
@@ -92,19 +119,41 @@ const renderHistory = () => {
   if (items.length && sidebar) sidebar.setAttribute("aria-hidden", sidebar.getAttribute("data-visible") === "true" ? "false" : sidebar.getAttribute("aria-hidden"));
 };
 
+/**
+ * Display status message to user
+ * @param {string} message - Message to display
+ * @param {boolean} isError - Whether this is an error message
+ */
 const setStatus = (message, isError = false) => {
   statusMessage.textContent = message;
   statusMessage.style.color = isError ? "#f87171" : "#38f8c0";
+  // Announce to screen readers
+  statusMessage.setAttribute("role", isError ? "alert" : "status");
 };
 
+/**
+ * Sanitize and validate URL input
+ * @param {string} value - URL to sanitize
+ * @returns {string|null} Sanitized URL or null if invalid
+ */
 const sanitizeUrl = value => {
   if (!value) return null;
+  const trimmed = value.trim();
+
+  // Add https:// if no protocol specified
+  let urlString = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    urlString = `https://${trimmed}`;
+  }
+
   try {
-    const url = new URL(value);
-    if (!url.protocol.startsWith("http")) return null;
+    const url = new URL(urlString);
+    if (!url.protocol.startsWith("http")) {
+      return null;
+    }
     return url.toString();
   } catch (err) {
-    console.error(err);
+    console.error("URL validation error:", err);
     return null;
   }
 };
@@ -217,11 +266,11 @@ const handleGeneration = async event => {
       background,
       createdAt: new Date().toISOString()
     });
-    setStatus("QR code ready.");
+    setStatus("QR code ready for download.");
     postEvent({ type: "generate", format, size, color, background });
   } catch (err) {
-    console.error(err);
-    setStatus("Generation failed. Try again.", true);
+    console.error("QR generation error:", err);
+    setStatus("Failed to generate QR code. Please try again.", true);
     disableDownload();
   }
 };
@@ -260,10 +309,10 @@ const handleCopy = async () => {
   }
   try {
     await navigator.clipboard.writeText(url);
-    setStatus("Link copied.");
+    setStatus("Link copied to clipboard.");
   } catch (err) {
-    console.error(err);
-    setStatus("Clipboard permissions denied.", true);
+    console.error("Clipboard error:", err);
+    setStatus("Unable to copy. Please copy manually.", true);
   }
 };
 
@@ -318,7 +367,11 @@ downloadBtn.addEventListener("click", () => {
 });
 if (toggleSidebarBtn) toggleSidebarBtn.addEventListener("click", toggleSidebar);
 if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
+
+// Close sidebar button
+const closeSidebarBtn = document.getElementById("closeSidebarBtn");
+if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", closeSidebar);
+
 yearEl.textContent = new Date().getFullYear();
 renderHistory();
 window.addEventListener("beforeunload", revokeObjectUrl);
- 

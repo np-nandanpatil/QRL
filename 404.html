@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 - Page Not Found | QR Flux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .error-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      gap: 24px;
+      padding: 20px;
+    }
+    .error-code {
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #206eff, #9061f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .error-message {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      color: rgba(248, 250, 252, 0.9);
+    }
+    .error-description {
+      color: rgba(248, 250, 252, 0.7);
+      max-width: 500px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="error-container">
+      <div class="error-code">404</div>
+      <h1 class="error-message">Page Not Found</h1>
+      <p class="error-description">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <a href="/" class="cta">Go to QR Generator</a>
+    </main>
+  </div>
+</body>
+</html>

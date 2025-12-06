@@ -1,26 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QR Flux Terms of Service</title>
+  <title>Terms of Service - QRL</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
   <div class="page">
-    <main class="section">
-      <h1>Terms of Service</h1>
-      <p>QR Flux provides free QR code generation with no warranties. Use the output responsibly and test before distribution.</p>
-      <h2>Acceptable use</h2>
-      <p>Do not generate QR codes linking to malicious, fraudulent, or unlawful destinations.</p>
-      <h2>Availability</h2>
-      <p>Service is provided on a best-effort basis via Cloudflare infrastructure. Scheduled maintenance notices will appear on the homepage.</p>
-      <h2>Contact</h2>
-      <p>Email <a href="mailto:legal@yourdomain.tech">legal@yourdomain.tech</a> for questions regarding these terms.</p>
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <a href="/" class="logo">QRL</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="generator" style="margin-top: 48px;">
+          <h1 style="font-size: 32px; margin-bottom: 24px;">Terms of Service</h1>
+
+          <p style="margin-bottom: 24px;">QRL provides free QR code generation with no warranties. Use the generated QR
+            codes responsibly and always test before distribution.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Acceptable Use</h2>
+          <p style="margin-bottom: 24px;">Do not generate QR codes linking to malicious, fraudulent, or unlawful
+            destinations. You are responsible for the content you link to.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Service Availability</h2>
+          <p style="margin-bottom: 24px;">The service is provided on a best-effort basis. We do not guarantee
+            uninterrupted availability.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Contact</h2>
+          <p>For questions regarding these terms, email <a
+              href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#110;&#97;&#110;&#100;&#97;&#110;&#112;&#97;&#116;&#105;&#108;&#109;&#49;&#53;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;"
+              style="color: var(--primary); text-decoration: none;">&#110;&#97;&#110;&#100;&#97;&#110;&#112;&#97;&#116;&#105;&#108;&#109;&#49;&#53;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px;">
+          <a href="/" class="btn btn-secondary">← Back to Generator</a>
+        </div>
+      </div>
     </main>
-    <footer class="footer">
-      <a href="/">Back to generator</a>
+
+    <footer style="margin-top: 64px;">
+      <div class="container">
+        <div class="footer-content">
+          <p>© <span id="year"></span> QRL. Made with care.</p>
+        </div>
+      </div>
     </footer>
   </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
+
 </html>

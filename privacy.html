@@ -1,26 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QR Flux Privacy Policy</title>
+  <title>Privacy Policy - QRL</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
   <div class="page">
-    <main class="section">
-      <h1>Privacy Policy</h1>
-      <p>QR Flux processes the URLs you submit only to generate QR codes. No personal data is sold or shared.</p>
-      <h2>Analytics</h2>
-      <p>Anonymous traffic metrics are captured via Cloudflare Web Analytics to improve reliability and performance.</p>
-      <h2>Data retention</h2>
-      <p>Recent QR history is stored locally in your browser. Clearing history removes the data instantly.</p>
-      <h2>Contact</h2>
-      <p>Reach out at <a href="mailto:hello@yourdomain.tech">hello@yourdomain.tech</a> for privacy questions.</p>
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <a href="/" class="logo">QRL</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="generator" style="margin-top: 48px;">
+          <h1 style="font-size: 32px; margin-bottom: 24px;">Privacy Policy</h1>
+
+          <p style="margin-bottom: 24px;">QRL processes the URLs you submit only to generate QR codes. All processing
+            happens in your browser. No personal data is collected, sold, or shared.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Local Storage</h2>
+          <p style="margin-bottom: 24px;">Your recent QR code history is stored locally in your browser. You can clear
+            this history at any time, and it will be removed instantly.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Analytics</h2>
+          <p style="margin-bottom: 24px;">We may collect anonymous traffic metrics to improve the service. No personally
+            identifiable information is collected.</p>
+
+          <h2 style="font-size: 20px; margin: 24px 0 12px;">Contact</h2>
+          <p>For privacy questions, reach out at <a
+              href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#110;&#97;&#110;&#100;&#97;&#110;&#112;&#97;&#116;&#105;&#108;&#109;&#49;&#53;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;"
+              style="color: var(--primary); text-decoration: none;">&#110;&#97;&#110;&#100;&#97;&#110;&#112;&#97;&#116;&#105;&#108;&#109;&#49;&#53;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px;">
+          <a href="/" class="btn btn-secondary">← Back to Generator</a>
+        </div>
+      </div>
     </main>
-    <footer class="footer">
-      <a href="/">Back to generator</a>
+
+    <footer style="margin-top: 64px;">
+      <div class="container">
+        <div class="footer-content">
+          <p>© <span id="year"></span> QRL. Made with care.</p>
+        </div>
+      </div>
     </footer>
   </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
+
 </html>
