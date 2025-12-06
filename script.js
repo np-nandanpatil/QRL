@@ -11,6 +11,7 @@ const svgContainer = document.getElementById("qrSvg");
 const downloadBtn = document.getElementById("downloadBtn");
 const shareBtn = document.getElementById("shareBtn");
 const copyBtn = document.getElementById("copyBtn");
+const copyQRBtn = document.getElementById("copyQRBtn");
 const statusMessage = document.getElementById("statusMessage");
 const historyList = document.getElementById("historyList");
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
@@ -26,6 +27,7 @@ const HISTORY_KEY = "qr-flux-history";
 const MAX_HISTORY = 10;
 const PREVIEW_SIZE = 320;
 let currentObjectUrl = null;
+let currentQRData = null; // Store current QR data for clipboard copy
 
 /**
  * Load QR code history from localStorage
@@ -170,10 +172,16 @@ const revokeObjectUrl = () => {
   }
 };
 
+/**
+ * Generate smart filename from URL and format
+ * @param {string} format - File format (png/svg)
+ * @param {string} hostname - Hostname from URL
+ * @returns {string} Smart filename
+ */
 const generateFileName = (format, hostname) => {
-  const random = Math.random().toString(36).slice(2, 8);
-  const host = hostname ? hostname.replace(/[^a-z0-9-]/gi, "").slice(0, 40) : "qr";
-  return `${host || "qr"}-${random}.${format}`;
+  const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const host = hostname ? hostname.replace(/[^a-z0-9-]/gi, '-').replace(/-+/g, '-').slice(0, 40) : "qr";
+  return `qr-${host || "qr"}-${date}.${format}`;
 };
 
 const enableDownload = (href, filename) => {
@@ -213,6 +221,8 @@ const handleGeneration = async event => {
   const sizeSelect = document.getElementById("sizeSelect");
   const colorInput = document.getElementById("colorInput");
   const bgColorInput = document.getElementById("bgColorInput");
+  const errorCorrectionSelect = document.getElementById("errorCorrectionSelect");
+
   const sanitized = sanitizeUrl(urlInput.value.trim());
   if (!sanitized) {
     setStatus("Enter a valid URL starting with http or https.", true);
@@ -223,30 +233,34 @@ const handleGeneration = async event => {
   const size = parseInt(sizeSelect.value, 10) || 512;
   const color = colorInput.value || "#000000";
   const background = bgColorInput.value || "#ffffff";
+  const errorCorrectionLevel = errorCorrectionSelect ? errorCorrectionSelect.value : "M";
+
   setStatus("Generating QR code...");
   disableDownload();
   revokeObjectUrl();
   try {
+    const qrOptions = {
+      width: size,
+      margin: 1,
+      color: { dark: color, light: background },
+      errorCorrectionLevel: errorCorrectionLevel
+    };
+
     if (format === "png") {
-      await QRCode.toCanvas(canvas, sanitized, {
-        width: size,
-        margin: 1,
-        color: { dark: color, light: background }
-      });
+      await QRCode.toCanvas(canvas, sanitized, qrOptions);
       canvas.classList.remove("hidden");
       canvas.style.width = `${PREVIEW_SIZE}px`;
       canvas.style.height = `${PREVIEW_SIZE}px`;
       svgContainer.classList.add("hidden");
       svgContainer.innerHTML = "";
       const dataUrl = canvas.toDataURL("image/png");
+      currentQRData = dataUrl;
       const filename = generateFileName("png", new URL(sanitized).hostname);
       enableDownload(dataUrl, filename);
     } else {
       const svg = await QRCode.toString(sanitized, {
         type: "svg",
-        width: size,
-        margin: 1,
-        color: { dark: color, light: background }
+        ...qrOptions
       });
       canvas.classList.add("hidden");
       svgContainer.classList.remove("hidden");
@@ -260,6 +274,7 @@ const handleGeneration = async event => {
       }
       const blob = new Blob([svg], { type: "image/svg+xml" });
       currentObjectUrl = URL.createObjectURL(blob);
+      currentQRData = svg;
       const filename = generateFileName("svg", new URL(sanitized).hostname);
       enableDownload(currentObjectUrl, filename);
     }
@@ -269,10 +284,11 @@ const handleGeneration = async event => {
       size,
       color,
       background,
+      errorCorrection: errorCorrectionLevel,
       createdAt: new Date().toISOString()
     });
     setStatus("QR code ready for download.");
-    postEvent({ type: "generate", format, size, color, background });
+    postEvent({ type: "generate", format, size, color, background, errorCorrection: errorCorrectionLevel });
   } catch (err) {
     console.error("QR generation error:", err);
     setStatus("Failed to generate QR code. Please try again.", true);
@@ -361,10 +377,115 @@ const toggleSidebar = () => {
   else openSidebar();
 };
 
+/**
+ * Copy QR code to clipboard
+ */
+const copyQRToClipboard = async () => {
+  if (!currentQRData) {
+    setStatus("Generate a QR code first!", true);
+    return;
+  }
+
+  try {
+    const format = document.getElementById("formatSelect").value;
+
+    if (format === "png") {
+      // Convert data URL to blob
+      const response = await fetch(currentQRData);
+      const blob = await response.blob();
+
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob
+        })
+      ]);
+      setStatus("QR code copied to clipboard! ✓");
+    } else {
+      // For SVG, copy as text
+      await navigator.clipboard.writeText(currentQRData);
+      setStatus("SVG code copied to clipboard! ✓");
+    }
+  } catch (err) {
+    console.error("Failed to copy QR:", err);
+    setStatus("Copy failed. Please try the download button.", true);
+  }
+};
+
+/**
+ * Keyboard shortcuts handler
+ */
+const handleKeyboardShortcuts = (event) => {
+  // Ctrl/Cmd + Enter: Generate QR
+  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+    event.preventDefault();
+    form.requestSubmit();
+    return;
+  }
+
+  // Ctrl/Cmd + S: Download QR
+  if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+    event.preventDefault();
+    if (!downloadBtn.classList.contains("disabled")) {
+      downloadBtn.click();
+    }
+    return;
+  }
+
+  // Escape: Close sidebar
+  if (event.key === "Escape") {
+    if (sidebar.dataset.visible === "true") {
+      closeSidebar();
+    }
+  }
+};
+
+// Initialize
 form.addEventListener("submit", handleGeneration);
-shareBtn.addEventListener("click", handleShare);
-copyBtn.addEventListener("click", handleCopy);
-clearHistoryBtn.addEventListener("click", handleClearHistory);
+shareBtn.addEventListener("click", () => {
+  const url = form.elements.url.value;
+  if (!url) return;
+  if (navigator.share) {
+    navigator.share({ title: "QR Flux", text: `Generated QR code for: ${url}`, url: window.location.href }).catch(e => {
+      console.error("Share error:", e);
+    });
+  } else {
+    shareDialogText.textContent = `Copy this link to share: ${window.location.href}`;
+    shareDialog.showModal();
+  }
+});
+copyBtn.addEventListener("click", async () => {
+  const url = form.elements.url.value;
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    setStatus("URL copied to clipboard! ✓");
+  } catch (err) {
+    console.error("Copy URL error:", err);
+    setStatus("Failed to copy URL", true);
+  }
+});
+
+// Copy QR button
+if (copyQRBtn) {
+  copyQRBtn.addEventListener("click", copyQRToClipboard);
+}
+
+// Keyboard shortcuts
+document.addEventListener("keydown", handleKeyboardShortcuts);
+
+clearHistoryBtn.addEventListener("click", () => {
+  if (confirm("Clear all QR code history?")) {
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+      setStatus("History cleared");
+    } catch (e) {
+      console.error("Failed to clear history:", e);
+      setStatus("Unable to clear history", true);
+    }
+  }
+});
+
 downloadBtn.addEventListener("click", () => {
   const format = document.getElementById("formatSelect").value;
   const size = parseInt(document.getElementById("sizeSelect").value, 10) || 512;
@@ -380,3 +501,4 @@ if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", closeSidebar);
 yearEl.textContent = new Date().getFullYear();
 renderHistory();
 window.addEventListener("beforeunload", revokeObjectUrl);
+

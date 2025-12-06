@@ -99,6 +99,16 @@
                   <option value="1024">1024px</option>
                 </select>
               </div>
+
+              <div class="field">
+                <label for="errorCorrectionSelect">Error Correction</label>
+                <select id="errorCorrectionSelect" name="errorCorrection">
+                  <option value="L">Low (7%)</option>
+                  <option value="M" selected>Medium (15%)</option>
+                  <option value="Q">High (25%)</option>
+                  <option value="H">Max (30%)</option>
+                </select>
+              </div>
             </div>
 
             <div class="field-grid">
@@ -129,6 +139,9 @@
             <a id="downloadBtn" class="btn btn-primary disabled" role="button" aria-disabled="true">
               Download
             </a>
+            <button id="copyQRBtn" class="btn btn-secondary" type="button" title="Copy QR to clipboard">
+              Copy QR
+            </button>
             <button id="shareBtn" class="btn btn-secondary" type="button">
               Share
             </button>
