@@ -96,7 +96,12 @@ const renderHistory = () => {
       document.getElementById("sizeSelect").value = String(item.size);
       document.getElementById("colorInput").value = item.color;
       document.getElementById("bgColorInput").value = item.background || "#ffffff";
-      form.dispatchEvent(new Event("submit"));
+
+      // Close the sidebar first
+      closeSidebar();
+
+      // Trigger form submission
+      form.requestSubmit();
     });
     const shareBtn = document.createElement("button");
     shareBtn.type = "button";
