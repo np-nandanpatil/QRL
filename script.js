@@ -21,9 +21,11 @@ const shareDialogText = document.getElementById("shareDialogText");
 const sidebar = document.querySelector(".sidebar");
 const sidebarOverlay = document.querySelector(".sidebar-overlay");
 const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
 
 // Configuration constants
 const HISTORY_KEY = "qr-flux-history";
+const THEME_KEY = "qr-flux-theme";
 const MAX_HISTORY = 10;
 const PREVIEW_SIZE = 320;
 let currentObjectUrl = null;
@@ -412,6 +414,45 @@ const copyQRToClipboard = async () => {
 };
 
 /**
+ * Theme Management
+ */
+const getTheme = () => {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored) return stored;
+
+  // Check system preference
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+
+  return 'light';
+};
+
+const applyTheme = (theme) => {
+  document.documentElement.setAttribute('data-theme', theme);
+
+  // Update toggle button icon
+  if (themeToggleBtn) {
+    const icon = themeToggleBtn.querySelector('.theme-icon');
+    if (icon) {
+      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    themeToggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+  }
+};
+
+const toggleTheme = () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+  applyTheme(newTheme);
+  localStorage.setItem(THEME_KEY, newTheme);
+
+  // Track theme change
+  postEvent({ type: 'theme_change', theme: newTheme });
+};
+
+/**
  * Keyboard shortcuts handler
  */
 const handleKeyboardShortcuts = (event) => {
@@ -441,16 +482,73 @@ const handleKeyboardShortcuts = (event) => {
 
 // Initialize
 form.addEventListener("submit", handleGeneration);
-shareBtn.addEventListener("click", () => {
+// Share button - share the QR code image
+shareBtn.addEventListener("click", async () => {
   const url = form.elements.url.value;
-  if (!url) return;
-  if (navigator.share) {
-    navigator.share({ title: "QR Flux", text: `Generated QR code for: ${url}`, url: window.location.href }).catch(e => {
-      console.error("Share error:", e);
-    });
-  } else {
-    shareDialogText.textContent = `Copy this link to share: ${window.location.href}`;
+  if (!url) {
+    setStatus("Generate a QR code first!", true);
+    return;
+  }
+
+  const format = document.getElementById("formatSelect").value;
+  const sanitized = sanitizeUrl(url);
+
+  try {
+    // Convert QR code to blob
+    let blob;
+    let filename;
+
+    if (format === "png") {
+      // Get blob from canvas
+      blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      filename = generateFileName("png", new URL(sanitized).hostname);
+    } else {
+      // Get SVG as blob
+      const svgData = svgContainer.innerHTML;
+      blob = new Blob([svgData], { type: "image/svg+xml" });
+      filename = generateFileName("svg", new URL(sanitized).hostname);
+    }
+
+    // Try Web Share API Level 2 (supports files)
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], filename, { type: blob.type });
+
+      // Check if we can share files
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "QR Code",
+          text: `QR code for: ${sanitized}`,
+          files: [file]
+        });
+        setStatus("QR code shared successfully! ✓");
+        postEvent({ type: "share", method: "native" });
+        return;
+      }
+    }
+
+    // Fallback: Show custom share menu in dialog
+    shareDialogText.innerHTML = `
+      <div style="margin-bottom: 16px;">
+        <strong>Share QR Code for:</strong><br>
+        <span style="font-size: 14px; color: var(--text-secondary); word-break: break-all;">${sanitized}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('downloadBtn').click(); document.getElementById('shareDialog').close();">
+          Download QR Code
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('copyQRBtn').click(); document.getElementById('shareDialog').close();">
+          Copy QR to Clipboard
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.writeText('${sanitized.replace(/'/g, "\\'")}'); document.getElementById('shareDialog').close();">
+          Copy URL
+        </button>
+      </div>
+    `;
     shareDialog.showModal();
+    postEvent({ type: "share", method: "fallback" });
+  } catch (err) {
+    console.error("Share error:", err);
+    setStatus("Unable to share. Try the download button instead.", true);
   }
 });
 copyBtn.addEventListener("click", async () => {
@@ -497,6 +595,12 @@ if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
 // Close sidebar button
 const closeSidebarBtn = document.getElementById("closeSidebarBtn");
 if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", closeSidebar);
+
+// Theme toggle
+if (themeToggleBtn) themeToggleBtn.addEventListener("click", toggleTheme);
+
+// Initialize theme
+applyTheme(getTheme());
 
 yearEl.textContent = new Date().getFullYear();
 renderHistory();
